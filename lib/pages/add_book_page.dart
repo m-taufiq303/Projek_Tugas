@@ -11,11 +11,9 @@ class AddBookPage extends StatefulWidget {
 
 class _AddBookPageState extends State<AddBookPage> {
   final _formKey = GlobalKey<FormState>();
-  String title = '';
-  String description = '';
-  String category = '';
+  final titleController = TextEditingController();
+  final descController = TextEditingController();
   File? imageFile;
-
   final picker = ImagePicker();
 
   Future<void> pickImage() async {
@@ -27,23 +25,20 @@ class _AddBookPageState extends State<AddBookPage> {
     }
   }
 
-  void saveBook() {
-    if (_formKey.currentState!.validate()) {
-      bookList.add(
-        Book(
-          title: title,
-          description: description,
-          imagePath: imageFile?.path ?? 'assets/images/default.jpg', // fallback
-        ),
-      );
-      Navigator.pop(context);
-    }
+  @override
+  void dispose() {
+    titleController.dispose();
+    descController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Tambah Buku'), backgroundColor: Colors.teal),
+      appBar: AppBar(
+        title: Text('Tambah Buku'),
+        backgroundColor: Colors.teal,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -66,32 +61,74 @@ class _AddBookPageState extends State<AddBookPage> {
                   ),
                   child: imageFile == null
                       ? Center(
-                          child: Text('Tap untuk pilih gambar',
-                              style: TextStyle(color: Colors.grey)),
+                          child: Text(
+                            'Tap untuk pilih gambar',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         )
                       : null,
                 ),
               ),
               SizedBox(height: 16),
               TextFormField(
+                controller: titleController,
                 decoration: InputDecoration(labelText: 'Judul Buku'),
-                validator: (val) => val!.isEmpty ? 'Wajib diisi' : null,
-                onChanged: (val) => title = val,
+                validator: (val) => val!.isEmpty ? 'Judul wajib diisi' : null,
               ),
+              SizedBox(height: 12),
               TextFormField(
+                controller: descController,
                 decoration: InputDecoration(labelText: 'Deskripsi'),
                 maxLines: 3,
-                validator: (val) => val!.isEmpty ? 'Wajib diisi' : null,
-                onChanged: (val) => description = val,
+                validator: (val) => val!.isEmpty ? 'Deskripsi wajib diisi' : null,
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: saveBook,
-                child: Text('SIMPAN'),
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) return;
+
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Tambah Buku Baru?'),
+                      content: Text('Apakah Anda yakin ingin menambahkan buku ini ke koleksi?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('Tidak'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text('Ya'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    bookList.add(Book(
+                      title: titleController.text,
+                      description: descController.text,
+                      imagePath: imageFile?.path ?? 'assets/images/default.jpg',
+                      isBookmarked: false,
+                    ));
+
+                    Navigator.pop(context, true);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Buku berhasil ditambahkan'),
+                        backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   foregroundColor: Colors.white,
                 ),
+                child: Text('SIMPAN'),
               ),
             ],
           ),

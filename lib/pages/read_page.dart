@@ -18,32 +18,26 @@ class _ReadPageState extends State<ReadPage> {
   Ini adalah isi simulasi dari buku berjudul "${widget.book.title}". 
   Anda bisa membaca konten ini, mengubah ukuran font, dan mengaktifkan mode malam untuk kenyamanan.
   
-  Contoh paragraf kedua:
-  Flutter adalah framework open-source dari Google untuk membangun aplikasi lintas platform.
-
-  (Konten buku asli dapat disesuaikan dengan kebutuhan.)
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam orci tellus, venenatis eu risus nec, cursus tincidunt nibh.
   ''';
 
   @override
   Widget build(BuildContext context) {
+    final book = widget.book;
+    
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: Text(widget.book.title),
-        backgroundColor: isDarkMode ? Colors.grey[900] : Colors.teal,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.wb_sunny : Icons.dark_mode,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
-                isDarkMode = !isDarkMode;
-              });
-            },
+        backgroundColor: Colors.teal,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+        ),
+        title: Text(
+          book.title,
+          style: TextStyle(
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
           ),
-        ],
+        ),
       ),
       body: Column(
         children: [

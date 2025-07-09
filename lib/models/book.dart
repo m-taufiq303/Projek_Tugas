@@ -1,13 +1,13 @@
 class Book {
-  final String title;
-  final String imagePath;
-  final String description;
+  String title;
+  String description;
+  String imagePath;
   bool isBookmarked;
 
   Book({
     required this.title,
-    required this.imagePath,
     required this.description,
+    required this.imagePath,
     this.isBookmarked = false,
   });
 }

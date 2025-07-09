@@ -5,6 +5,7 @@ import 'pages/detail_page.dart';
 import 'pages/bookmark_page.dart';
 import 'pages/add_book_page.dart';
 import 'dart:io';
+import 'package:google_fonts/google_fonts.dart';
 
 
 void main() {
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       title: 'Perpustakaan Digital',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.teal,
+        textTheme: GoogleFonts.poppinsTextTheme(),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
       home: LoginPage(),
@@ -43,7 +45,7 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 20),
             Text(
               'Perpustakaan Digital',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 24,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -61,6 +63,10 @@ class LoginPage extends StatelessWidget {
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.teal,
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                textStyle: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               child: Text('MASUK'),
             ),
@@ -130,15 +136,25 @@ class _HomePageState extends State<HomePage> {
                 backgroundColor: Colors.teal,
                 child: Icon(Icons.add),
                 onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => AddBookPage()),
-                  );
-                  setState(() {});
-                },
-              )
-            : null,
+                  final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AddBookPage()),
+                );
 
+                if (result == true) {
+                  print('snackbar tampil');
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Buku berhasil ditambahkan'),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+             )
+            : null,
     );
   }
 

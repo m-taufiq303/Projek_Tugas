@@ -1,10 +1,11 @@
-import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'read_page.dart';
-import 'dart:io';
 import '../data/book_data.dart';
+import 'edit_book_page.dart';
+
 
 class DetailPage extends StatefulWidget {
   final Book book;
@@ -16,40 +17,47 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  void _showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Hapus Buku'),
+        content: Text('Yakin ingin menghapus buku ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              bookList.remove(widget.book);
+              Navigator.pop(context); // tutup dialog
+              Navigator.pop(context); // kembali ke home
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Buku Berhasil Dihapus'),
+                backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+            child: Text('Hapus', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final book = widget.book;
-  void _showDeleteDialog() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Hapus Buku'),
-      content: Text('Yakin ingin menghapus buku ini?'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context), // batal
-          child: Text('Batal'),
-        ),
-        TextButton(
-          onPressed: () {
-            // Hapus buku dari list
-            bookList.remove(widget.book);
-            Navigator.pop(context); // tutup dialog
-            Navigator.pop(context); // kembali ke halaman utama
-          },
-          child: Text('Hapus', style: TextStyle(color: Colors.red)),
-        ),
-      ],
-    ),
-  );
-}
 
     return Scaffold(
       appBar: AppBar(
         title: Text(book.title),
         backgroundColor: Colors.teal,
         actions: [
-          // Tombol Bookmark
           IconButton(
             icon: Icon(
               book.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
@@ -61,15 +69,20 @@ class _DetailPageState extends State<DetailPage> {
               });
             },
           ),
-          SizedBox(width: 4),
-
-          // Menu Titik 3
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: Colors.white),
             padding: EdgeInsets.zero,
             onSelected: (value) {
               if (value == 'edit') {
-                // Tambahkan logika untuk mengedit buku
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditBookPage(book: book),
+                  ),
+                ).then((_) {
+                  setState(() {});
+                });
+                
               } else if (value == 'delete') {
                 _showDeleteDialog();
               }
@@ -79,8 +92,6 @@ class _DetailPageState extends State<DetailPage> {
               PopupMenuItem(value: 'delete', child: Text('Hapus')),
             ],
           ),
-
-          SizedBox(width: 8),
         ],
       ),
       body: ListView(
@@ -89,9 +100,8 @@ class _DetailPageState extends State<DetailPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: book.imagePath.startsWith('assets/')
-                    ? Image.asset(book.imagePath, height: 250, fit: BoxFit.cover)
-                    : Image.file(File(book.imagePath), height: 250, fit: BoxFit.cover)
-,
+                ? Image.asset(book.imagePath, height: 250, fit: BoxFit.cover)
+                : Image.file(File(book.imagePath), height: 250, fit: BoxFit.cover),
           ),
           SizedBox(height: 16),
           Text(
